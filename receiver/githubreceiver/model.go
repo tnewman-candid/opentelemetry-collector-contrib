@@ -95,6 +95,13 @@ const (
 	AttributeVCSRefHeadRevisionAuthorName  = "vcs.ref.head.revision.author.name"  // GitHub's Head Revision Author Name
 	AttributeVCSRefHeadRevisionAuthorEmail = "vcs.ref.head.revision.author.email" // GitHub's Head Revision Author Email
 
+
+    // we need to map workflows to workflow jobs, and the best way to do that is
+    // to thread the workflow name into every job trace. Since the true standard
+    // OpenTelemetry attributes are overloaded I wanted to set these explicitly
+    // until the supported collector does it properly.
+    AttributeCICDPipelineWorkflowName = "cicd.pipeline.candidhealth.workflow.name"
+    AttributeCICDPipelineWorkflowJobName = "cicd.pipeline.candidhealth.workflow.job.name"
 )
 
 // getWorkflowRunAttrs returns a pcommon.Map of attributes for the Workflow Run
@@ -125,6 +132,7 @@ func (gtr *githubTracesReceiver) getWorkflowRunAttrs(resource pcommon.Resource, 
 
 	// CICD Attributes
 	attrs.PutStr(string(conventions.CICDPipelineNameKey), e.GetWorkflowRun().GetName())
+	attrs.PutStr(AttributeCICDPipelineWorkflowName, e.GetWorkflowRun().GetName())
 	attrs.PutStr(AttributeCICDPipelineRunSenderLogin, e.GetSender().GetLogin())
 	attrs.PutStr(AttributeCICDPipelineRunURLFull, e.GetWorkflowRun().GetHTMLURL())
 	attrs.PutInt(string(conventions.CICDPipelineRunIDKey), e.GetWorkflowRun().GetID())
@@ -213,7 +221,11 @@ func (gtr *githubTracesReceiver) getWorkflowJobAttrs(resource pcommon.Resource, 
 		}
 	}
 
-	// CICD Attributes
+	// Custom Candid Health Attributes
+	attrs.PutStr(AttributeCICDPipelineWorkflowName, e.GetWorkflowJob().GetWorkflowName())
+	attrs.PutStr(AttributeCICDPipelineWorkflowJobName, e.GetWorkflowJob().GetName())
+
+	// CICD Attributesl
 	attrs.PutStr(string(conventions.CICDPipelineNameKey), e.GetWorkflowJob().GetName())
 	attrs.PutStr(AttributeCICDPipelineTaskRunSenderLogin, e.GetSender().GetLogin())
 	attrs.PutStr(string(conventions.CICDPipelineTaskRunURLFullKey), e.GetWorkflowJob().GetHTMLURL())
@@ -231,7 +243,7 @@ func (gtr *githubTracesReceiver) getWorkflowJobAttrs(resource pcommon.Resource, 
 	// following additional values: neutral, timed_out, action_required, stale,
 	// and null.
 	default:
-		attrs.PutStr(AttributeCICDPipelineRunStatus, status)
+		attrs.PutStr(AttributeCICDPipelineTaskRunStatus, status)
 	}
 
 	return err
