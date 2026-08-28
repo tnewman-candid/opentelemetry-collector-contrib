@@ -535,5 +535,8 @@ func (*githubTracesReceiver) createJobQueueSpan(
 	attrs := span.Attributes()
 	attrs.PutDouble(AttributeCICDPipelineRunQueueDuration, float64(duration.Nanoseconds()))
 
+	// candidhealth - treat queueing as a task span
+	attrs.PutStr(string(conventions.CICDPipelineTaskNameKey), spanName)
+
 	return nil
 }
