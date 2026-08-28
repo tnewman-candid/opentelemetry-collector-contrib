@@ -258,6 +258,18 @@ func (gtr *githubTracesReceiver) createParentSpan(
 	default:
 		span.Status().SetCode(ptrace.StatusCodeUnset)
 	}
+    switch status := strings.ToLower(event.WorkflowJob.GetConclusion()); status {
+    case "success":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusSuccess)
+    case "failure":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusFailure)
+    case "skipped":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusSkip)
+    case "cancelled":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusCancellation)
+    default:
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, status)
+    }
 
 	span.Status().SetMessage(event.GetWorkflowJob().GetConclusion())
 
@@ -420,19 +432,37 @@ func (*githubTracesReceiver) createStepSpan(
 	switch strings.ToLower(step.GetConclusion()) {
 	case "success":
 		attrs.PutStr(AttributeCICDPipelineTaskRunStatus, AttributeCICDPipelineTaskRunStatusSuccess)
+		attrs.PutStr(AttributeCICDPipelineWorkflowJobStepStatus, AttributeCICDPipelineTaskRunStatusSuccess)
 		span.Status().SetCode(ptrace.StatusCodeOk)
 	case "failure":
 		attrs.PutStr(AttributeCICDPipelineTaskRunStatus, AttributeCICDPipelineTaskRunStatusFailure)
+		attrs.PutStr(AttributeCICDPipelineWorkflowJobStepStatus, AttributeCICDPipelineTaskRunStatusFailure)
 		span.Status().SetCode(ptrace.StatusCodeError)
 	case "skipped":
 		attrs.PutStr(AttributeCICDPipelineTaskRunStatus, AttributeCICDPipelineTaskRunStatusFailure)
+		attrs.PutStr(AttributeCICDPipelineWorkflowJobStepStatus, AttributeCICDPipelineTaskRunStatusSkip)
 		span.Status().SetCode(ptrace.StatusCodeUnset)
 	case "cancelled":
 		attrs.PutStr(AttributeCICDPipelineTaskRunStatus, AttributeCICDPipelineTaskRunStatusCancellation)
+		attrs.PutStr(AttributeCICDPipelineWorkflowJobStepStatus, AttributeCICDPipelineTaskRunStatusCancellation)
 		span.Status().SetCode(ptrace.StatusCodeUnset)
 	default:
 		span.Status().SetCode(ptrace.StatusCodeUnset)
+		attrs.PutStr(AttributeCICDPipelineWorkflowJobStepStatus, status)
 	}
+
+    switch status := strings.ToLower(event.WorkflowJob.GetConclusion()); status {
+    case "success":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusSuccess)
+    case "failure":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusFailure)
+    case "skipped":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusSkip)
+    case "cancelled":
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, AttributeCICDPipelineTaskRunStatusCancellation)
+    default:
+      span.Attributes().PutStr(AttributeCICDPipelineWorkflowJobStatus, status)
+    }
 
 	span.Status().SetMessage(event.GetWorkflowJob().GetConclusion())
 

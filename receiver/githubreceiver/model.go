@@ -100,8 +100,10 @@ const (
     // to thread the workflow name into every job trace. Since the true standard
     // OpenTelemetry attributes are overloaded I wanted to set these explicitly
     // until the supported collector does it properly.
-    AttributeCICDPipelineWorkflowName = "cicd.pipeline.candidhealth.workflow.name"
-    AttributeCICDPipelineWorkflowJobName = "cicd.pipeline.candidhealth.workflow.job.name"
+    AttributeCICDPipelineWorkflowName          = "cicd.pipeline.candidhealth.workflow.name"
+    AttributeCICDPipelineWorkflowJobName       = "cicd.pipeline.candidhealth.workflow.job.name"
+    AttributeCICDPipelineWorkflowJobStatus     = "cicd.pipeline.candidhealth.workflow.job.status"
+    AttributeCICDPipelineWorkflowJobStepStatus = "cicd.pipeline.candidhealth.workflow.job.step.status"
 )
 
 // getWorkflowRunAttrs returns a pcommon.Map of attributes for the Workflow Run
